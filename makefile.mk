@@ -1,3 +1,4 @@
+# copy this command: mingw32-make -f makefile.mk
 # Set the compiler and compiler flags
 # copy this command: mingw32-make -f makefile.mk
 CC = gcc
