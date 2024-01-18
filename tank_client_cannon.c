@@ -7,8 +7,7 @@
 #include <unistd.h>
 #include <winsock2.h>
 
-int main(void)
-{
+int main(void) {
     // 接続するサーバの情報の構造体を用意
 
     struct sockaddr_in dest;
@@ -45,8 +44,7 @@ int main(void)
 
     // サーバへの接続
 
-    if (connect(s, (struct sockaddr *)&dest, sizeof(dest)))
-    {
+    if (connect(s, (struct sockaddr *)&dest, sizeof(dest))) {
         printf("%sに接続できませんでした\n", destination);
 
         return -1;
@@ -61,7 +59,7 @@ int main(void)
     char move1[] = "move:300\n";
     char move2[] = "move:500\n";
     char move3[] = "move:700\n";
-    char cannon1[] = "cannon:10000\n";
+    char cannon1[] = "cannon:100\n";
     char cannon2[] = "cannon:300\n";
     char cannon3[] = "cannon:500\n";
     char cannon4[] = "cannon:700\n";
@@ -90,8 +88,7 @@ int main(void)
     time_t t = time(NULL);
     srand(t);
 
-    while (1)
-    {
+    while (1) {
         //        flag = rand() % 3;
 
         /*        if (flag == 0) {
@@ -128,8 +125,7 @@ int main(void)
         token = strtok(NULL, ":");
         int cannonnum = atoi(token);
 
-        if (cannonnum == 5)
-        {
+        if (cannonnum == 5) {
             printf("%s\n", cannon1);
             // サーバにデータを送信 移動指令
             send(s, cannon1, strlen(cannon1), 0);
@@ -140,8 +136,7 @@ int main(void)
 
             printf("%s\n", cannon2);
             // nullかえってくる限り打ち続けるよ！
-            do
-            {
+            do {
                 send(s, cannon2, strlen(cannon2), 0);
                 // サーバから返信データを受信
                 memset(buffer, '\0', sizeof(buffer));
@@ -151,12 +146,15 @@ int main(void)
                 strcpy(str, buffer);
                 strtok(str, ":");
                 token = strtok(NULL, ":");
-            } while (strcmp(token, "null") == 0);
+                // printf("token: %s", token); -> null
+                // int len = strlen(token);
+                // printf("長さ：%d\n", len); -> 5
+                // TODO: nullなのにstrlen=5はおかしい！
+            } while (strcmp(token, "null\n") == 0);
 
             printf("%s\n", cannon3);
             // nullかえってくる限り打ち続けるよ！
-            do
-            {
+            do {
                 send(s, cannon3, strlen(cannon3), 0);
                 // サーバから返信データを受信
                 memset(buffer, '\0', sizeof(buffer));
@@ -166,13 +164,12 @@ int main(void)
                 strcpy(str, buffer);
                 strtok(str, ":");
                 token = strtok(NULL, ":");
-            } while (strcmp(token, "null") == 0);
+            } while (strcmp(token, "null\n") == 0);
 
             printf("%s\n", cannon4);
             // nullかえってくる限り打ち続けるよ！
-                char str2[100];
-            do
-            {
+            char str2[100];
+            do {
                 send(s, cannon4, strlen(cannon4), 0);
                 // サーバから返信データを受信
                 memset(buffer, '\0', sizeof(buffer));
@@ -184,12 +181,11 @@ int main(void)
                 token = strtok(NULL, ":");
                 strcpy(str2, token);
                 printf("token:%s\n", token);
-            } while (strcmp(str2, "null") == 0);
+            } while (strcmp(str2, "null\n") == 0);
 
             printf("%s\n", cannon5);
             // nullかえってくる限り打ち続けるよ！
-            do
-            {
+            do {
                 send(s, cannon5, strlen(cannon5), 0);
                 // サーバから返信データを受信
                 memset(buffer, '\0', sizeof(buffer));
@@ -199,7 +195,7 @@ int main(void)
                 strcpy(str, buffer);
                 strtok(str, ":");
                 token = strtok(NULL, ":");
-            } while (strcmp(token, "null") == 0);
+            } while (strcmp(token, "null\n") == 0);
         }
 
         //        Sleep(1000 * (rand() % 3 + 1));
