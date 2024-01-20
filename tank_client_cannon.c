@@ -64,12 +64,18 @@ int main(void) {
     char cannon3[] = "cannon:500\n";
     char cannon4[] = "cannon:700\n";
     char cannon5[] = "cannon:900\n";
-    char search1[] = "search:300\n";
-    char search2[] = "search:500\n";
-    char search3[] = "search:700\n";
-    char state1[] = "state:hp\n";
-    char state2[] = "state:hight\n";
-    char state3[] = "state:cannon\n";
+    char search1[] = "search:100\n";
+    char search2[] = "search:200\n";
+    char search3[] = "search:300\n";
+    char search4[] = "search:400\n";
+    char search5[] = "search:500\n";
+    char search6[] = "search:600\n";
+    char search7[] = "search:700\n";
+    char search8[] = "search:800\n";
+    char search9[] = "search:900\n";
+    char state_hp[] = "state:hp\n";
+    char state_hight[] = "state:hight\n";
+    char state_cannon[] = "state:cannon\n";
 
     // サーバにデータを送信：名前の送信
     send(s, name, strlen(name), 0);
@@ -113,7 +119,7 @@ int main(void) {
 
         //        flag = rand() % 3;
 
-        send(s, state3, strlen(state3), 0);
+        send(s, state_cannon, strlen(state_cannon), 0);
         memset(buffer, '\0', sizeof(buffer));
         recv(s, buffer, sizeof(buffer), 0);
         printf("→ %s", buffer);
@@ -168,7 +174,6 @@ int main(void) {
 
             printf("%s\n", cannon4);
             // nullかえってくる限り打ち続けるよ！
-            char str2[100];
             do {
                 send(s, cannon4, strlen(cannon4), 0);
                 // サーバから返信データを受信
@@ -179,9 +184,7 @@ int main(void) {
                 strcpy(str, buffer);
                 strtok(str, ":");
                 token = strtok(NULL, ":");
-                strcpy(str2, token);
-                printf("token:%s\n", token);
-            } while (strcmp(str2, "null\n") == 0);
+            } while (strcmp(token, "null\n") == 0);
 
             printf("%s\n", cannon5);
             // nullかえってくる限り打ち続けるよ！
@@ -196,6 +199,46 @@ int main(void) {
                 strtok(str, ":");
                 token = strtok(NULL, ":");
             } while (strcmp(token, "null\n") == 0);
+        }
+
+        // search結果を保存する
+        
+        // 守り（座標移動）のブロック文
+        {
+            char buffer[1024];
+            int hp_before;
+            int hp_after;
+            memset(buffer, '\0', sizeof(buffer));
+
+            // 自分のhpが減っているかを0.1msecほど待って確認
+            // -> 減っていたら移動する
+            send(s, state_hp, strlen(state_hp), 0);
+            // サーバから返信データを受信
+            memset(buffer, '\0', sizeof(buffer));
+            recv(s, buffer, sizeof(buffer), 0);
+            printf("→ %s", buffer);
+            // hpを数字にして保持
+            strcpy(str, buffer);
+            strtok(str, ":");
+            hp_before = atoi(strtok(NULL, ":"));
+
+            // 0.1msec待つ
+            // 0.1msecで動作確認、hpが2減るので丁度いい塩梅
+            usleep(1000);
+
+            send(s, state_hp, strlen(state_hp), 0);
+            // サーバから返信データを受信
+            memset(buffer, '\0', sizeof(buffer));
+            recv(s, buffer, sizeof(buffer), 0);
+            printf("→ %s", buffer);
+            // hpを数字にして保持
+            strcpy(str, buffer);
+            strtok(str, ":");
+            hp_after = atoi(strtok(NULL, ":"));
+
+            if(hp_before != hp_after){
+                printf("hp diff: %d, %d\n", hp_before, hp_after);
+            }
         }
 
         //        Sleep(1000 * (rand() % 3 + 1));
@@ -220,15 +263,15 @@ int main(void) {
 
                 if (flag == 0) {
                     // サーバにデータを送信 移動指令
-                    send(s, state1, strlen(state1), 0);
+                    send(s, state_hp, strlen(state_hp), 0);
 
                 } else if (flag == 1) {
                     // サーバにデータを送信 移動指令
-                    send(s, state2, strlen(state2), 0);
+                    send(s, state_hight, strlen(state_hight), 0);
 
                 } else if (flag == 2) {
                     // サーバにデータを送信 移動指令
-                    send(s, state3, strlen(state3), 0);
+                    send(s, state_cannon, strlen(state_cannon), 0);
                 }
 
                 // サーバから返信データを受信
