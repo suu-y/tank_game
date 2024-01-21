@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <winsock2.h>
 
+int GetRandom(int min, int max);
+
 int main(void) {
     // 接続するサーバの情報の構造体を用意
 
@@ -64,12 +66,20 @@ int main(void) {
     char cannon3[] = "cannon:500\n";
     char cannon4[] = "cannon:700\n";
     char cannon5[] = "cannon:900\n";
-    char search1[] = "search:300\n";
-    char search2[] = "search:500\n";
-    char search3[] = "search:700\n";
-    char state1[] = "state:hp\n";
-    char state2[] = "state:hight\n";
-    char state3[] = "state:cannon\n";
+    char search1[] = "search:100\n";
+    char search2[] = "search:200\n";
+    char search3[] = "search:300\n";
+    char search4[] = "search:400\n";
+    char search5[] = "search:500\n";
+    char search6[] = "search:600\n";
+    char search7[] = "search:700\n";
+    char search8[] = "search:800\n";
+    char search9[] = "search:900\n";
+    char search_my0[] = "search:0\n";
+    char search_my1000[] = "search:1000\n";
+    char state_hp[] = "state:hp\n";
+    char state_hight[] = "state:hight\n";
+    char state_cannon[] = "state:cannon\n";
 
     // サーバにデータを送信：名前の送信
     send(s, name, strlen(name), 0);
@@ -113,7 +123,7 @@ int main(void) {
 
         //        flag = rand() % 3;
 
-        send(s, state3, strlen(state3), 0);
+        send(s, state_cannon, strlen(state_cannon), 0);
         memset(buffer, '\0', sizeof(buffer));
         recv(s, buffer, sizeof(buffer), 0);
         printf("→ %s", buffer);
@@ -146,10 +156,6 @@ int main(void) {
                 strcpy(str, buffer);
                 strtok(str, ":");
                 token = strtok(NULL, ":");
-                // printf("token: %s", token); -> null
-                // int len = strlen(token);
-                // printf("長さ：%d\n", len); -> 5
-                // TODO: nullなのにstrlen=5はおかしい！
             } while (strcmp(token, "null\n") == 0);
 
             printf("%s\n", cannon3);
@@ -168,7 +174,6 @@ int main(void) {
 
             printf("%s\n", cannon4);
             // nullかえってくる限り打ち続けるよ！
-            char str2[100];
             do {
                 send(s, cannon4, strlen(cannon4), 0);
                 // サーバから返信データを受信
@@ -179,9 +184,7 @@ int main(void) {
                 strcpy(str, buffer);
                 strtok(str, ":");
                 token = strtok(NULL, ":");
-                strcpy(str2, token);
-                printf("token:%s\n", token);
-            } while (strcmp(str2, "null\n") == 0);
+            } while (strcmp(token, "null\n") == 0);
 
             printf("%s\n", cannon5);
             // nullかえってくる限り打ち続けるよ！
@@ -196,6 +199,91 @@ int main(void) {
                 strtok(str, ":");
                 token = strtok(NULL, ":");
             } while (strcmp(token, "null\n") == 0);
+        }
+
+        // search結果を保存する
+
+        // 守り（座標移動）のブロック文
+        {
+            char buffer[1024];
+            int hp_before;
+            int hp_after;
+            int enemy_placeY;
+
+            memset(buffer, '\0', sizeof(buffer));
+
+            // 自分のhpが減っているかを0.1msecほど待って確認
+            // -> 減っていたら移動する
+            send(s, state_hp, strlen(state_hp), 0);
+            // サーバから返信データを受信
+            memset(buffer, '\0', sizeof(buffer));
+            recv(s, buffer, sizeof(buffer), 0);
+            printf("→ %s", buffer);
+            // hpを数字にして保持
+            strcpy(str, buffer);
+            strtok(str, ":");
+            hp_before = atoi(strtok(NULL, ":"));
+
+            // 0.1msec待つ
+            // 0.1msecで動作確認、hpが2減るので丁度いい塩梅
+            usleep(1000);
+
+            send(s, state_hp, strlen(state_hp), 0);
+            // サーバから返信データを受信
+            memset(buffer, '\0', sizeof(buffer));
+            recv(s, buffer, sizeof(buffer), 0);
+            printf("→ %s", buffer);
+            // hpを数字にして保持
+            strcpy(str, buffer);
+            strtok(str, ":");
+            hp_after = atoi(strtok(NULL, ":"));
+
+            // hpが減っているので移動
+            if (hp_before != hp_after) {
+                usleep(2000);  // 受信するパケットが混ざらないように待つ
+
+                char buff_enemy[1024];
+                memset(buff_enemy, '\0', sizeof(buff_enemy));
+                printf("hp diff: %d, %d\n", hp_before, hp_after);
+                printf("自陣の敵弾を探索\n");
+                send(s, search_my0, strlen(search_my0), 0);
+                // サーバから返信データを受信
+                recv(s, buff_enemy, sizeof(buff_enemy), 0);
+                printf("→ %s", buff_enemy);
+                strcpy(str, buff_enemy);
+                strtok(str, ":");
+                strtok(NULL, ",");
+                enemy_placeY = atoi(strtok(NULL, ","));
+                printf("敵弾のY座標: %d\n", enemy_placeY);
+                if (enemy_placeY > 0 && enemy_placeY < 1000) {
+                    // 新しい命令を作成
+                    char *new_move = "move:";
+                    char place[1024];
+                    srand((unsigned int)time(NULL));
+                    int rand_num = GetRandom(1, 10);
+                    // 砲弾のサイズを70と推定
+                    if (rand_num % 2 == 0 && enemy_placeY<850)
+                        //enemy_placeY = enemy_placeY + 200;    // 動作確認用
+                        enemy_placeY = enemy_placeY + GetRandom(71, 150);
+                    else
+                        //enemy_placeY = enemy_placeY - 200;    // 動作確認用
+                        enemy_placeY = enemy_placeY - GetRandom(-71, 150);
+                    itoa(enemy_placeY, place, 10);
+                    sprintf(place, "%s%d\n", new_move, enemy_placeY);
+                    printf("移動します: %s", place);
+
+                    send(s, place, strlen(place), 0);
+                    // サーバから返信データを受信
+                    memset(buffer, '\0', sizeof(buffer));
+                    recv(s, buffer, sizeof(buffer), 0);
+                    printf("→ %s", buffer);
+                }
+                send(s, search_my1000, strlen(search_my1000), 0);
+                // サーバから返信データを受信
+                memset(buff_enemy, '\0', sizeof(buff_enemy));
+                recv(s, buff_enemy, sizeof(buff_enemy), 0);
+                printf("→ %s", buff_enemy);
+            }
         }
 
         //        Sleep(1000 * (rand() % 3 + 1));
@@ -220,15 +308,15 @@ int main(void) {
 
                 if (flag == 0) {
                     // サーバにデータを送信 移動指令
-                    send(s, state1, strlen(state1), 0);
+                    send(s, state_hp, strlen(state_hp), 0);
 
                 } else if (flag == 1) {
                     // サーバにデータを送信 移動指令
-                    send(s, state2, strlen(state2), 0);
+                    send(s, state_hight, strlen(state_hight), 0);
 
                 } else if (flag == 2) {
                     // サーバにデータを送信 移動指令
-                    send(s, state3, strlen(state3), 0);
+                    send(s, state_cannon, strlen(state_cannon), 0);
                 }
 
                 // サーバから返信データを受信
@@ -254,4 +342,8 @@ int main(void) {
     WSACleanup();
 
     return 0;
+}
+
+int GetRandom(int min, int max) {
+    return min + (int)(rand() * (max - min + 1.0) / (1.0 + RAND_MAX));
 }
