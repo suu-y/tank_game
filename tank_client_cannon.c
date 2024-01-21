@@ -73,6 +73,8 @@ int main(void) {
     char search7[] = "search:700\n";
     char search8[] = "search:800\n";
     char search9[] = "search:900\n";
+    char search_my0[] = "search:0\n";
+    char search_my1000[] = "search:1000\n";
     char state_hp[] = "state:hp\n";
     char state_hight[] = "state:hight\n";
     char state_cannon[] = "state:cannon\n";
@@ -202,12 +204,14 @@ int main(void) {
         }
 
         // search結果を保存する
-        
+
         // 守り（座標移動）のブロック文
         {
             char buffer[1024];
             int hp_before;
             int hp_after;
+            int enemy_placeY;
+
             memset(buffer, '\0', sizeof(buffer));
 
             // 自分のhpが減っているかを0.1msecほど待って確認
@@ -236,8 +240,44 @@ int main(void) {
             strtok(str, ":");
             hp_after = atoi(strtok(NULL, ":"));
 
-            if(hp_before != hp_after){
+            usleep(1000);  // 受信するパケットが混ざらないように待つ
+
+            // hpが減っているので移動
+            if (hp_before != hp_after) {
+                char buff_enemy[1024];
+                memset(buff_enemy, '\0', sizeof(buff_enemy));
                 printf("hp diff: %d, %d\n", hp_before, hp_after);
+                printf("自陣の敵弾を探索\n");
+                send(s, search_my0, strlen(search_my0), 0);
+                // サーバから返信データを受信
+                recv(s, buff_enemy, sizeof(buff_enemy), 0);
+                printf("→ %s", buff_enemy);
+                strcpy(str, buff_enemy);
+                strtok(str, ":");
+                strtok(NULL, ",");
+                enemy_placeY = atoi(strtok(NULL, ","));
+                printf("敵弾のY座標: %d\n", enemy_placeY);
+                if (enemy_placeY > 0 && enemy_placeY < 1000) {
+                    // 新しい命令を作成
+                    char *new_move = "move:";
+                    char place[1024];
+                    enemy_placeY = enemy_placeY + 130;
+                    itoa(enemy_placeY, place, 10);
+                    // 「Hello, 」の後ろに「World!」を連結する
+                    sprintf(place, "%s%d\n", new_move, enemy_placeY);
+                    printf("移動します: %s", place);
+
+                    send(s, place, strlen(place), 0);
+                    // サーバから返信データを受信
+                    memset(buffer, '\0', sizeof(buffer));
+                    recv(s, buffer, sizeof(buffer), 0);
+                    printf("→ %s", buffer);
+                }
+                send(s, search_my1000, strlen(search_my1000), 0);
+                // サーバから返信データを受信
+                memset(buff_enemy, '\0', sizeof(buff_enemy));
+                recv(s, buff_enemy, sizeof(buff_enemy), 0);
+                printf("→ %s", buff_enemy);
             }
         }
 
