@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <winsock2.h>
 
+int GetRandom(int min, int max);
+
 int main(void) {
     // 接続するサーバの情報の構造体を用意
 
@@ -154,10 +156,6 @@ int main(void) {
                 strcpy(str, buffer);
                 strtok(str, ":");
                 token = strtok(NULL, ":");
-                // printf("token: %s", token); -> null
-                // int len = strlen(token);
-                // printf("長さ：%d\n", len); -> 5
-                // TODO: nullなのにstrlen=5はおかしい！
             } while (strcmp(token, "null\n") == 0);
 
             printf("%s\n", cannon3);
@@ -240,10 +238,10 @@ int main(void) {
             strtok(str, ":");
             hp_after = atoi(strtok(NULL, ":"));
 
-            usleep(1000);  // 受信するパケットが混ざらないように待つ
-
             // hpが減っているので移動
             if (hp_before != hp_after) {
+                usleep(2000);  // 受信するパケットが混ざらないように待つ
+
                 char buff_enemy[1024];
                 memset(buff_enemy, '\0', sizeof(buff_enemy));
                 printf("hp diff: %d, %d\n", hp_before, hp_after);
@@ -261,9 +259,16 @@ int main(void) {
                     // 新しい命令を作成
                     char *new_move = "move:";
                     char place[1024];
-                    enemy_placeY = enemy_placeY + 130;
+                    srand((unsigned int)time(NULL));
+                    int rand_num = GetRandom(1, 10);
+                    // 砲弾のサイズを70と推定
+                    if (rand_num % 2 == 0 && enemy_placeY<850)
+                        //enemy_placeY = enemy_placeY + 200;    // 動作確認用
+                        enemy_placeY = enemy_placeY + GetRandom(71, 150);
+                    else
+                        //enemy_placeY = enemy_placeY - 200;    // 動作確認用
+                        enemy_placeY = enemy_placeY - GetRandom(-71, 150);
                     itoa(enemy_placeY, place, 10);
-                    // 「Hello, 」の後ろに「World!」を連結する
                     sprintf(place, "%s%d\n", new_move, enemy_placeY);
                     printf("移動します: %s", place);
 
@@ -337,4 +342,8 @@ int main(void) {
     WSACleanup();
 
     return 0;
+}
+
+int GetRandom(int min, int max) {
+    return min + (int)(rand() * (max - min + 1.0) / (1.0 + RAND_MAX));
 }
