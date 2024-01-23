@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <winsock2.h>
 
+#define SPACE 80
+
 typedef struct point
 {
     int x; // x座標
@@ -267,7 +269,7 @@ int main(void)
                     } while (strcmp(token, "null\n") == 0);
                 }
                 else
-                { // 敵の位置が把握できてる場合(50間隔で撃つよ)
+                { // 敵の位置が把握できてる場合(space間隔で撃つよ)
                     char tmp[100];
 
                     printf("1弾目：%d\n", enemy.y);
@@ -279,10 +281,10 @@ int main(void)
                     recv(s, buffer, sizeof(buffer), 0);
                     printf("→ %s", buffer);
 
-                    if (enemy.y - 50 >= 100)
+                    if (enemy.y - SPACE >= 100)
                     {
-                        printf("2弾目：%d\n", enemy.y - 50);
-                        sprintf(tmp, "cannon:%d\n", enemy.y - 50);
+                        printf("2弾目：%d\n", enemy.y - SPACE);
+                        sprintf(tmp, "cannon:%d\n", enemy.y - SPACE);
                     }
                     else
                     { // とりあえず100へ
@@ -303,10 +305,10 @@ int main(void)
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y + 50 <= 900)
+                    if (enemy.y + SPACE <= 900)
                     {
-                        printf("3弾目：%d\n", enemy.y + 50);
-                        sprintf(tmp, "cannon:%d\n", enemy.y + 50);
+                        printf("3弾目：%d\n", enemy.y + SPACE);
+                        sprintf(tmp, "cannon:%d\n", enemy.y + SPACE);
                     }
                     else
                     { // とりあえず900へ
@@ -327,10 +329,10 @@ int main(void)
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y - 100 >= 100)
+                    if (enemy.y - 2*SPACE >= 100)
                     {
-                        printf("4弾目：%d\n", enemy.y - 100);
-                        sprintf(tmp, "cannon:%d\n", enemy.y - 100);
+                        printf("4弾目：%d\n", enemy.y - 2*SPACE);
+                        sprintf(tmp, "cannon:%d\n", enemy.y - 2*SPACE);
                     }
                     else
                     { // とりあえず100へ
@@ -351,10 +353,10 @@ int main(void)
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y + 100 <= 900)
+                    if (enemy.y + 2*SPACE <= 900)
                     {
-                        printf("5弾目：%d\n", enemy.y + 100);
-                        sprintf(tmp, "cannon:%d\n", enemy.y + 100);
+                        printf("5弾目：%d\n", enemy.y + 2*SPACE);
+                        sprintf(tmp, "cannon:%d\n", enemy.y + 2*SPACE);
                     }
                     else
                     { // とりあえず900へ
