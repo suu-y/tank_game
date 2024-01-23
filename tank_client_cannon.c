@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <winsock2.h>
 
+#define SPACE 80
+
 typedef struct point {
     int x;  // x座標
     int y;  // y座標
@@ -193,7 +195,7 @@ int main(void) {
                     printf("→ %s", buffer);
 
                     printf("2弾目：300\n");
-                    // nullかえってくる限り打ち続ける
+                    // nullが返ってくる限り打ち続ける
                     do {
                         send(s, cannon2, strlen(cannon2), 0);
                         // サーバから返信データを受信
@@ -207,7 +209,7 @@ int main(void) {
                     } while (strcmp(token, "null\n") == 0);
 
                     printf("3弾目：700\n");
-                    // nullかえってくる限り打ち続ける
+                    // nullが返ってくる限り打ち続ける
                     do {
                         send(s, cannon4, strlen(cannon4), 0);
                         // サーバから返信データを受信
@@ -221,7 +223,7 @@ int main(void) {
                     } while (strcmp(token, "null\n") == 0);
 
                     printf("4弾目：100\n");
-                    // nullかえってくる限り打ち続ける
+                    // nullが返ってくる限り打ち続ける
                     do {
                         send(s, cannon1, strlen(cannon1), 0);
                         // サーバから返信データを受信
@@ -235,7 +237,7 @@ int main(void) {
                     } while (strcmp(token, "null\n") == 0);
 
                     printf("5弾目：900\n");
-                    // nullかえってくる限り打ち続ける
+                    // nullが返ってくる限り打ち続ける
                     do {
                         send(s, cannon5, strlen(cannon5), 0);
                         // サーバから返信データを受信
@@ -247,7 +249,7 @@ int main(void) {
                         strtok(str, ":");
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
-                } else {  // 敵の位置が把握できてる場合(50間隔で撃つよ)
+                } else {  // 敵の位置が把握できてる場合(SPACE間隔で撃つ)
                     char tmp[100];
 
                     printf("1弾目：%d\n", enemy.y);
@@ -259,14 +261,14 @@ int main(void) {
                     recv(s, buffer, sizeof(buffer), 0);
                     printf("→ %s", buffer);
 
-                    if (enemy.y - 50 >= 100) {
-                        printf("2弾目：%d\n", enemy.y - 50);
-                        sprintf(tmp, "cannon:%d\n", enemy.y - 50);
+                    if (enemy.y - SPACE >= 100) {
+                        printf("2弾目：%d\n", enemy.y - SPACE);
+                        sprintf(tmp, "cannon:%d\n", enemy.y - SPACE);
                     } else {  // とりあえず100へ
                         printf("2弾目：100\n");
                         sprintf(tmp, "cannon:100\n");
                     }
-                    // nullかえってくる限り打ち続ける
+                    // nullが返ってくる限り打ち続ける
                     do {
                         send(s, tmp, strlen(tmp), 0);
                         // サーバから返信データを受信
@@ -279,14 +281,14 @@ int main(void) {
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y + 50 <= 900) {
-                        printf("3弾目：%d\n", enemy.y + 50);
-                        sprintf(tmp, "cannon:%d\n", enemy.y + 50);
+                    if (enemy.y + SPACE <= 900) {
+                        printf("3弾目：%d\n", enemy.y + SPACE);
+                        sprintf(tmp, "cannon:%d\n", enemy.y + SPACE);
                     } else {  // とりあえず900へ
                         printf("3弾目：900\n");
                         sprintf(tmp, "cannon:900\n");
                     }
-                    // nullかえってくる限り打ち続ける
+                    // nullが返ってくる限り打ち続ける
                     do {
                         send(s, tmp, strlen(tmp), 0);
                         // サーバから返信データを受信
@@ -299,14 +301,14 @@ int main(void) {
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y - 100 >= 100) {
-                        printf("4弾目：%d\n", enemy.y - 100);
-                        sprintf(tmp, "cannon:%d\n", enemy.y - 100);
+                    if (enemy.y - 2*SPACE >= 100) {
+                        printf("4弾目：%d\n", enemy.y - 2*SPACE);
+                        sprintf(tmp, "cannon:%d\n", enemy.y - 2*SPACE);
                     } else {  // とりあえず100へ
                         printf("4弾目：100\n");
                         sprintf(tmp, "cannon:100\n");
                     }
-                    // nullかえってくる限り打ち続ける
+                    // nullが返ってくる限り打ち続ける
                     do {
                         send(s, tmp, strlen(tmp), 0);
                         // サーバから返信データを受信
@@ -319,14 +321,14 @@ int main(void) {
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y + 100 <= 900) {
-                        printf("5弾目：%d\n", enemy.y + 100);
-                        sprintf(tmp, "cannon:%d\n", enemy.y + 100);
+                    if (enemy.y + 2*SPACE <= 900) {
+                        printf("5弾目：%d\n", enemy.y + 2*SPACE);
+                        sprintf(tmp, "cannon:%d\n", enemy.y + 2*SPACE);
                     } else {  // とりあえず900へ
                         printf("5弾目：900\n");
                         sprintf(tmp, "cannon:900\n");
                     }
-                    // nullかえってくる限り打ち続ける
+                    // nullが返ってくる限り打ち続ける
                     do {
                         send(s, tmp, strlen(tmp), 0);
                         // サーバから返信データを受信
