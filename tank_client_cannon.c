@@ -403,15 +403,16 @@ int main(void) {
                     char place[1024];
                     srand((unsigned int)time(NULL));
                     int rand_num = GetRandom(1, 10);
+                    int target_place;
                     // 砲弾のサイズを70と推定
                     if (rand_num % 2 == 0 && enemy_placeY < 850)
-                        // enemy_placeY = enemy_placeY + 200;    // 動作確認用
-                        enemy_placeY = enemy_placeY + GetRandom(71, 150);
+                        // target_place = enemy_placeY + 200;    // 動作確認用
+                        target_place = enemy_placeY + GetRandom(71, 150);
                     else
-                        // enemy_placeY = enemy_placeY - 200;    // 動作確認用
-                        enemy_placeY = enemy_placeY - GetRandom(-71, 150);
-                    itoa(enemy_placeY, place, 10);
-                    sprintf(place, "%s%d\n", new_move, enemy_placeY);
+                        // target_place = enemy_placeY - 200;    // 動作確認用
+                        target_place = enemy_placeY - GetRandom(-71, 150);
+                    itoa(target_place, place, 10);
+                    sprintf(place, "%s%d\n", new_move, target_place);
                     printf("移動します: %s", place);
 
                     send(s, place, strlen(place), 0);
@@ -422,29 +423,20 @@ int main(void) {
 
                     // 2回目の移動を防ぐためにフラグを折る
                     while (1) {
-                        send(s, state_hp, strlen(state_hp), 0);
+                        memset(buff_enemy, '\0', sizeof(buff_enemy));
+                        printf("自陣の敵弾を探索\n");
+                        send(s, state_hight, strlen(state_hight), 0);
                         // サーバから返信データを受信
-                        memset(buffer, '\0', sizeof(buffer));
-                        recv(s, buffer, sizeof(buffer), 0);
-                        printf("→ %s", buffer);
-                        // hpを数字にして保持
-                        strcpy(str, buffer);
+                        recv(s, buff_enemy, sizeof(buff_enemy), 0);
+                        printf("→ %s", buff_enemy);
+                        strcpy(str, buff_enemy);
                         strtok(str, ":");
-                        int hp_before = atoi(strtok(NULL, ":"));
-
-                        // 0.1msec待つ
-                        usleep(1000);
-
-                        send(s, state_hp, strlen(state_hp), 0);
-                        // サーバから返信データを受信
-                        memset(buffer, '\0', sizeof(buffer));
-                        recv(s, buffer, sizeof(buffer), 0);
-                        printf("→ %s", buffer);
-                        // hpを数字にして保持
-                        strcpy(str, buffer);
-                        strtok(str, ":");
-                        int hp_after = atoi(strtok(NULL, ":"));
-                        if(hp_before == hp_after)   break;
+                        int my_placeY = atoi(strtok(NULL, ":"));
+                        if (abs(my_placeY - target_place) < 30) {
+                            printf("現在地: %d, 目的地: %d(移動完了)\n",
+                                   my_placeY, target_place);
+                            break;
+                        }
                     }
                 }
             }
