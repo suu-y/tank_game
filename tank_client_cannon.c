@@ -269,7 +269,7 @@ int main(void)
                     } while (strcmp(token, "null\n") == 0);
                 }
                 else
-                { // 敵の位置が把握できてる場合(space間隔で撃つよ)
+                { // 敵の位置が把握できてる場合(space間隔で撃つ)
                     char tmp[100];
 
                     printf("1弾目：%d\n", enemy.y);
