@@ -7,16 +7,14 @@
 #include <unistd.h>
 #include <winsock2.h>
 
-typedef struct point
-{
-    int x; // x座標
-    int y; // y座標
+typedef struct point {
+    int x;  // x座標
+    int y;  // y座標
 } point;
 
 int GetRandom(int min, int max);
 
-int main(void)
-{
+int main(void) {
     // 接続するサーバの情報の構造体を用意
 
     struct sockaddr_in dest;
@@ -53,8 +51,7 @@ int main(void)
 
     // サーバへの接続
 
-    if (connect(s, (struct sockaddr *)&dest, sizeof(dest)))
-    {
+    if (connect(s, (struct sockaddr *)&dest, sizeof(dest))) {
         printf("%sに接続できませんでした\n", destination);
 
         return -1;
@@ -65,7 +62,7 @@ int main(void)
     // char msg[] = "Hello Server!";
     // char buffer[1024];
     char buffer[1024];
-    char name[] = "name:TUYOBI\n";
+    char name[] = "name:RAIGEKI\n";
     char move1[] = "move:300\n";
     char move2[] = "move:500\n";
     char move3[] = "move:700\n";
@@ -108,47 +105,43 @@ int main(void)
     char str[100];
     char *token;
 
-    while (1)
-    {
-
+    while (1) {
         // 全方位に対して探索を行い，砲弾の位置，敵の座標を構造体に格納
-        point cannon[20]; // 砲弾の位置を保存しておく．(余裕を持って20個)
+        point cannon[20];  // 砲弾の位置を保存しておく．(余裕を持って20個)
         point enemy;
         enemy.x = 0;
         enemy.y = 0;
 
         int i, n = 0;
-        for (i = 1; i < 9; i++)
-        {
-            switch (i)
-            {
-            case 1:
-                send(s, search1, strlen(search1), 0);
-                break;
-            case 2:
-                send(s, search2, strlen(search2), 0);
-                break;
-            case 3:
-                send(s, search3, strlen(search3), 0);
-                break;
-            case 4:
-                send(s, search4, strlen(search4), 0);
-                break;
-            case 5:
-                send(s, search5, strlen(search5), 0);
-                break;
-            case 6:
-                send(s, search6, strlen(search6), 0);
-                break;
-            case 7:
-                send(s, search7, strlen(search7), 0);
-                break;
-            case 8:
-                send(s, search8, strlen(search8), 0);
-                break;
-            case 9:
-                send(s, search9, strlen(search9), 0);
-                break;
+        for (i = 1; i < 9; i++) {
+            switch (i) {
+                case 1:
+                    send(s, search1, strlen(search1), 0);
+                    break;
+                case 2:
+                    send(s, search2, strlen(search2), 0);
+                    break;
+                case 3:
+                    send(s, search3, strlen(search3), 0);
+                    break;
+                case 4:
+                    send(s, search4, strlen(search4), 0);
+                    break;
+                case 5:
+                    send(s, search5, strlen(search5), 0);
+                    break;
+                case 6:
+                    send(s, search6, strlen(search6), 0);
+                    break;
+                case 7:
+                    send(s, search7, strlen(search7), 0);
+                    break;
+                case 8:
+                    send(s, search8, strlen(search8), 0);
+                    break;
+                case 9:
+                    send(s, search9, strlen(search9), 0);
+                    break;
             }
             memset(buffer, '\0', sizeof(buffer));
             recv(s, buffer, sizeof(buffer), 0);
@@ -156,22 +149,18 @@ int main(void)
 
             strcpy(str, buffer);
             strtok(str, ":");
-            token = strtok(NULL, ":"); // x座標,y座標,種類を分離
+            token = strtok(NULL, ":");  // x座標,y座標,種類を分離
             // もし砲弾か敵に当たった場合，その座標を保存
-            if (strcmp(token, "null\n")!=0)
-            {
+            if (strcmp(token, "null\n") != 0) {
                 int xt, yt;
                 xt = atoi(strtok(token, ","));
                 yt = atoi(strtok(NULL, ","));
                 token = strtok(NULL, ",");
-                if (strcmp(token, "cannon\n") == 0)
-                {
+                if (strcmp(token, "cannon\n") == 0) {
                     printf("砲弾を発見しました。\n");
                     cannon[n].x = xt;
                     cannon[n++].y = yt;
-                }
-                else if (strcmp(token, "enemy\n") == 0)
-                {
+                } else if (strcmp(token, "enemy\n") == 0) {
                     enemy.x = xt;
                     enemy.y = yt;
                     printf("敵の位置を把握しました。\n");
@@ -192,12 +181,9 @@ int main(void)
             token = strtok(NULL, ":");
             int cannonnum = atoi(token);
 
-            if (cannonnum == 5)
-            {
-
+            if (cannonnum == 5) {
                 // 敵の位置が把握できてない場合(500,300,700,100,900の順で撃ってみる)
-                if (enemy.x == 0 && enemy.y == 0)
-                {
+                if (enemy.x == 0 && enemy.y == 0) {
                     printf("1弾目：500\n");
                     // サーバにデータを送信 移動指令
                     send(s, cannon3, strlen(cannon3), 0);
@@ -208,8 +194,7 @@ int main(void)
 
                     printf("2弾目：300\n");
                     // nullかえってくる限り打ち続ける
-                    do
-                    {
+                    do {
                         send(s, cannon2, strlen(cannon2), 0);
                         // サーバから返信データを受信
                         memset(buffer, '\0', sizeof(buffer));
@@ -223,8 +208,7 @@ int main(void)
 
                     printf("3弾目：700\n");
                     // nullかえってくる限り打ち続ける
-                    do
-                    {
+                    do {
                         send(s, cannon4, strlen(cannon4), 0);
                         // サーバから返信データを受信
                         memset(buffer, '\0', sizeof(buffer));
@@ -238,8 +222,7 @@ int main(void)
 
                     printf("4弾目：100\n");
                     // nullかえってくる限り打ち続ける
-                    do
-                    {
+                    do {
                         send(s, cannon1, strlen(cannon1), 0);
                         // サーバから返信データを受信
                         memset(buffer, '\0', sizeof(buffer));
@@ -253,8 +236,7 @@ int main(void)
 
                     printf("5弾目：900\n");
                     // nullかえってくる限り打ち続ける
-                    do
-                    {
+                    do {
                         send(s, cannon5, strlen(cannon5), 0);
                         // サーバから返信データを受信
                         memset(buffer, '\0', sizeof(buffer));
@@ -265,9 +247,7 @@ int main(void)
                         strtok(str, ":");
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
-                }
-                else
-                { // 敵の位置が把握できてる場合(50間隔で撃つよ)
+                } else {  // 敵の位置が把握できてる場合(50間隔で撃つよ)
                     char tmp[100];
 
                     printf("1弾目：%d\n", enemy.y);
@@ -279,19 +259,15 @@ int main(void)
                     recv(s, buffer, sizeof(buffer), 0);
                     printf("→ %s", buffer);
 
-                    if (enemy.y - 50 >= 100)
-                    {
+                    if (enemy.y - 50 >= 100) {
                         printf("2弾目：%d\n", enemy.y - 50);
                         sprintf(tmp, "cannon:%d\n", enemy.y - 50);
-                    }
-                    else
-                    { // とりあえず100へ
+                    } else {  // とりあえず100へ
                         printf("2弾目：100\n");
                         sprintf(tmp, "cannon:100\n");
                     }
                     // nullかえってくる限り打ち続ける
-                    do
-                    {
+                    do {
                         send(s, tmp, strlen(tmp), 0);
                         // サーバから返信データを受信
                         memset(buffer, '\0', sizeof(buffer));
@@ -303,19 +279,15 @@ int main(void)
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y + 50 <= 900)
-                    {
+                    if (enemy.y + 50 <= 900) {
                         printf("3弾目：%d\n", enemy.y + 50);
                         sprintf(tmp, "cannon:%d\n", enemy.y + 50);
-                    }
-                    else
-                    { // とりあえず900へ
+                    } else {  // とりあえず900へ
                         printf("3弾目：900\n");
                         sprintf(tmp, "cannon:900\n");
                     }
                     // nullかえってくる限り打ち続ける
-                    do
-                    {
+                    do {
                         send(s, tmp, strlen(tmp), 0);
                         // サーバから返信データを受信
                         memset(buffer, '\0', sizeof(buffer));
@@ -327,19 +299,15 @@ int main(void)
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y - 100 >= 100)
-                    {
+                    if (enemy.y - 100 >= 100) {
                         printf("4弾目：%d\n", enemy.y - 100);
                         sprintf(tmp, "cannon:%d\n", enemy.y - 100);
-                    }
-                    else
-                    { // とりあえず100へ
+                    } else {  // とりあえず100へ
                         printf("4弾目：100\n");
                         sprintf(tmp, "cannon:100\n");
                     }
                     // nullかえってくる限り打ち続ける
-                    do
-                    {
+                    do {
                         send(s, tmp, strlen(tmp), 0);
                         // サーバから返信データを受信
                         memset(buffer, '\0', sizeof(buffer));
@@ -351,19 +319,15 @@ int main(void)
                         token = strtok(NULL, ":");
                     } while (strcmp(token, "null\n") == 0);
 
-                    if (enemy.y + 100 <= 900)
-                    {
+                    if (enemy.y + 100 <= 900) {
                         printf("5弾目：%d\n", enemy.y + 100);
                         sprintf(tmp, "cannon:%d\n", enemy.y + 100);
-                    }
-                    else
-                    { // とりあえず900へ
+                    } else {  // とりあえず900へ
                         printf("5弾目：900\n");
                         sprintf(tmp, "cannon:900\n");
                     }
                     // nullかえってくる限り打ち続ける
-                    do
-                    {
+                    do {
                         send(s, tmp, strlen(tmp), 0);
                         // サーバから返信データを受信
                         memset(buffer, '\0', sizeof(buffer));
@@ -377,8 +341,6 @@ int main(void)
                 }
             }
         }
-
-        // search結果を保存する
 
         // 守り（座標移動）のブロック文
         {
@@ -414,11 +376,13 @@ int main(void)
             strcpy(str, buffer);
             strtok(str, ":");
             hp_after = atoi(strtok(NULL, ":"));
+            int hp_diff = hp_before - hp_after;
+            int hp_flag = 0;
+            if (hp_diff != 0) hp_flag = 1;
 
             // hpが減っているので移動
-            if (hp_before != hp_after)
-            {
-                usleep(2000); // 受信するパケットが混ざらないように待つ
+            if (hp_flag) {
+                usleep(2000);  // 受信するパケットが混ざらないように待つ
 
                 char buff_enemy[1024];
                 memset(buff_enemy, '\0', sizeof(buff_enemy));
@@ -433,8 +397,7 @@ int main(void)
                 strtok(NULL, ",");
                 enemy_placeY = atoi(strtok(NULL, ","));
                 printf("敵弾のY座標: %d\n", enemy_placeY);
-                if (enemy_placeY > 0 && enemy_placeY < 1000)
-                {
+                if (enemy_placeY > 0 && enemy_placeY < 1000) {
                     // 新しい命令を作成
                     char *new_move = "move:";
                     char place[1024];
@@ -456,65 +419,37 @@ int main(void)
                     memset(buffer, '\0', sizeof(buffer));
                     recv(s, buffer, sizeof(buffer), 0);
                     printf("→ %s", buffer);
+
+                    // 2回目の移動を防ぐためにフラグを折る
+                    while (1) {
+                        send(s, state_hp, strlen(state_hp), 0);
+                        // サーバから返信データを受信
+                        memset(buffer, '\0', sizeof(buffer));
+                        recv(s, buffer, sizeof(buffer), 0);
+                        printf("→ %s", buffer);
+                        // hpを数字にして保持
+                        strcpy(str, buffer);
+                        strtok(str, ":");
+                        int hp_before = atoi(strtok(NULL, ":"));
+
+                        // 0.1msec待つ
+                        usleep(1000);
+
+                        send(s, state_hp, strlen(state_hp), 0);
+                        // サーバから返信データを受信
+                        memset(buffer, '\0', sizeof(buffer));
+                        recv(s, buffer, sizeof(buffer), 0);
+                        printf("→ %s", buffer);
+                        // hpを数字にして保持
+                        strcpy(str, buffer);
+                        strtok(str, ":");
+                        int hp_after = atoi(strtok(NULL, ":"));
+                        if(hp_before == hp_after)   break;
+                    }
                 }
-                send(s, search_my1000, strlen(search_my1000), 0);
-                // サーバから返信データを受信
-                memset(buff_enemy, '\0', sizeof(buff_enemy));
-                recv(s, buff_enemy, sizeof(buff_enemy), 0);
-                printf("→ %s", buff_enemy);
             }
         }
-
-        //        Sleep(1000 * (rand() % 3 + 1));
-
-        /*        if (flag == 0) {
-                    // サーバにデータを送信 移動指令
-                    send(s, search1, strlen(search1), 0);
-
-                } else if (flag == 1) {
-                    // サーバにデータを送信 移動指令
-                    send(s, search2, strlen(search2), 0);
-
-                } else if (flag == 2) {
-                    // サーバにデータを送信 移動指令
-                    send(s, search3, strlen(search3), 0);
-                }
-
-                // サーバから返信データを受信
-                memset(buffer, '\0', sizeof(buffer));
-                recv(s, buffer, sizeof(buffer), 0);
-                printf("→ %s", buffer);
-
-                if (flag == 0) {
-                    // サーバにデータを送信 移動指令
-                    send(s, state_hp, strlen(state_hp), 0);
-
-                } else if (flag == 1) {
-                    // サーバにデータを送信 移動指令
-                    send(s, state_hight, strlen(state_hight), 0);
-
-                } else if (flag == 2) {
-                    // サーバにデータを送信 移動指令
-                    send(s, state_cannon, strlen(state_cannon), 0);
-                }
-
-                // サーバから返信データを受信
-                memset(buffer, '\0', sizeof(buffer));
-                recv(s, buffer, sizeof(buffer), 0);
-                printf("→ %s", buffer);*/
     }
-
-    // サーバにデータを送信
-
-    // send(s, "Hello Server!", strlen(msg), 0);
-
-    // サーバからデータを受信
-
-    // recv(s, buffer, 1024, 0);
-
-    // printf("→ %s\n\n", buffer);
-
-    // Windows でのソケットの終了
 
     closesocket(s);
 
@@ -523,7 +458,6 @@ int main(void)
     return 0;
 }
 
-int GetRandom(int min, int max)
-{
+int GetRandom(int min, int max) {
     return min + (int)(rand() * (max - min + 1.0) / (1.0 + RAND_MAX));
 }
